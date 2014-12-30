@@ -94,6 +94,7 @@ function Luna(element=document.body, settings=luna_settings) {
 		var angle = Math.atan2(dy,dx);
 		var next_pos = { x: this.moon.targetpos.x, y : this.moon.targetpos.y };
 		
+		// TODO handle case in which the moon is far away
 		if ( Math.abs(len) > speed ) {
 			next_pos.x = this.moon.x + Math.cos(angle)*speed;
 			next_pos.y = this.moon.y + Math.sin(angle)*speed;
@@ -215,6 +216,29 @@ function Luna(element=document.body, settings=luna_settings) {
 		this.luna.alt = "Best Princess"
 		parent.insertBefore(this.luna,null);
 	}
+	
+	this.SpawnMainMenu = function() {
+		this.menu = document.createElement('menu');
+		this.menu.id = "luna-menu_"+Math.random().toString(16).slice(2);
+		this.menu.type = "context";
+		this.parent.insertBefore(this.menu,null);
+		//this.parent.contextMenu = this.menu;
+		this.parent.setAttribute("contextmenu",this.menu.id);
+	}
+	this.InsertMenuItem = function(menu,item) {
+		menu.insertBefore(item,null);
+	}
+	this.SpawnMenuItem = function(object) {
+		var menuitem = document.createElement('menuitem');
+		for (var key in object)
+			menuitem[key] = object[key];
+		return menuitem;
+	}
+	this.SpawnSubMenu = function(label) {
+		var menu = document.createElement('menu');
+		menu.label = label;
+		return menu;
+	}
 
 	//parent
 	this.parent = element;
@@ -261,6 +285,38 @@ function Luna(element=document.body, settings=luna_settings) {
 	this.stars = [];
 	for (var i = 0; i < this.settings.star.number; i++)
 		this.SpawnStar();
+	// menu
+	// NOTE <menu> is only implemented on Firefox
+	// NOTE Luna may or not be best princess but Firefox is surely best browser
+	this.SpawnMainMenu();
+	this.InsertMenuItem(this.menu, this.SpawnMenuItem({
+		label:"About Luna", 
+		onlick: function() { window.open("https://github.com/mbasaglia/Luna/"); },
+		icon: this.settings.media+"icon.png"
+	}));
+	var bp_menu = this.SpawnSubMenu("Best Princess");
+	this.InsertMenuItem(bp_menu,this.SpawnMenuItem({
+		label: "Celestia",
+		disabled: true,
+		type: "radio"
+	}));
+	this.InsertMenuItem(bp_menu,this.SpawnMenuItem({
+		label: "Luna",
+		checked: true,
+		default: true,
+		type: "radio"
+	}));
+	this.InsertMenuItem(bp_menu,this.SpawnMenuItem({
+		label: "Cadance",
+		disabled: true,
+		type: "radio"
+	}));
+	this.InsertMenuItem(bp_menu,this.SpawnMenuItem({
+		label: "Twilight Sparkle",
+		disabled: true,
+		type: "radio"
+	}));
+	this.InsertMenuItem(this.menu, bp_menu);
 	// events
 	var thisluna = this;
 	window.addEventListener("resize",function(){thisluna.EventResize();});
