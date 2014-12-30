@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="16mm"
+   height="16mm"
+   viewBox="0 0 16 16"
+   id="svg4750"
+   version="1.1"
+   inkscape:version="0.91+devel r"
+   sodipodi:docname="star.svg"
+   inkscape:export-filename="star_2.png"
+   inkscape:export-xdpi="203.2"
+   inkscape:export-ydpi="203.2">
+  <defs
+     id="defs4752">
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4507-6-1"
+       id="radialGradient4513-3-6"
+       cx="870.24634"
+       cy="218.48125"
+       fx="870.24634"
+       fy="218.48125"
+       r="14.142136"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.24115438,0,0,0.24115412,-118.55279,49.589009)" />
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient4507-6-1">
+      <stop
+         style="stop-color:#fcfbfe;stop-opacity:1;"
+         offset="0"
+         id="stop4509-55-9" />
+      <stop
+         id="stop4515-4-8"
+         offset="0.32616597"
+         style="stop-color:#fcfbfe;stop-opacity:1" />
+      <stop
+         style="stop-color:#fcfbfe;stop-opacity:0.35754189"
+         offset="0.70830488"
+         id="stop4524-9-3" />
+      <stop
+         style="stop-color:#fcfbfe;stop-opacity:0"
+         offset="1"
+         id="stop4511-2-6" />
+    </linearGradient>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="5.6"
+     inkscape:cx="8.7374097"
+     inkscape:cy="-2.9248257"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     borderlayer="true"
+     showguides="true"
+     inkscape:guide-bbox="true"
+     inkscape:window-width="1753"
+     inkscape:window-height="1180"
+     inkscape:window-x="50"
+     inkscape:window-y="-3"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata4755">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="bg"
+     transform="translate(-83.251159,-94.278589)"
+     sodipodi:insensitive="true">
+    <rect
+       style="opacity:1;fill:#3a1d74;fill-opacity:1;stroke:none;stroke-width:4.52409458;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect5323"
+       width="316.74405"
+       height="244.92857"
+       x="-67.498466"
+       y="4.3940558" />
+  </g>
+  <g
+     inkscape:label="star"
+     inkscape:groupmode="layer"
+     id="layer1"
+     style="opacity:1"
+     transform="translate(-83.251159,-94.278589)">
+    <path
+       style="opacity:1;fill:#fcfbfe;fill-opacity:1;stroke:none"
+       d="m 95.476364,106.58143 -3.952084,-3.77591 -0.299514,7.22362 -0.318964,-7.25993 -4.034173,3.65276 3.6225,-4.11573 -6.193099,-0.26622 6.229398,-0.35232 -3.338235,-3.944643 3.801237,3.532963 0.363401,-6.745425 0.25509,6.781715 4.236198,-3.765232 -3.824529,4.228242 6.193101,0.26621 -6.229399,0.35233 z"
+       id="path4519-79-1"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccccccccccccccccc"
+       inkscape:export-filename="star_1.png"
+       inkscape:export-xdpi="180"
+       inkscape:export-ydpi="180" />
+    <circle
+       style="opacity:1;fill:url(#radialGradient4513-3-6);fill-opacity:1;stroke:none"
+       id="path4505-2-3"
+       cx="91.310928"
+       cy="102.27666"
+       r="3.4104342"
+       inkscape:export-filename="star_2.png"
+       inkscape:export-xdpi="180"
+       inkscape:export-ydpi="180" />
+    <path
+       sodipodi:nodetypes="ccccccccccccccccc"
+       inkscape:connector-curvature="0"
+       id="path5488"
+       d="m 93.985583,104.96079 -2.535096,-2.36789 -0.211378,4.1762 -0.235149,-4.20241 -2.475653,2.15998 2.178434,-2.49424 -3.384124,-0.186 3.410331,-0.26057 -1.829947,-2.228704 2.164224,1.931484 0.248391,-3.698 0.198146,3.7242 2.332829,-2.02397 -2.035613,2.35825 3.431373,0.22181 -3.457579,0.22476 z"
+       style="opacity:1;fill:#fcfbfe;fill-opacity:1;stroke:none" />
+  </g>
+</svg>

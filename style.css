@@ -1,0 +1,29 @@
+h1 {
+    color: #0a9;
+    font-family: "Celestia";
+    font-size: 48pt;
+    margin: 0;
+    text-align: center;
+    text-shadow: 0 0 3pt #057;
+}
+.luna {
+    width: 80%;
+}
+html {
+	height: 100%;
+}
+body {
+    background: linear-gradient(to bottom, #306, #83b, #b6e) repeat scroll 0 0 #83c;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin: 0;
+    padding: 0;
+    position: fixed;
+    text-align: center;
+}
+@font-face {
+    font-family: "Celestia";
+    src: url("media/CelestiaMediumRedux_alt1.55.ttf");
+}
