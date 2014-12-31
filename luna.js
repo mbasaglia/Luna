@@ -1,3 +1,28 @@
+/*
+	@licstart  The following is the entire license notice for the JavaScript 
+	code in this file.
+	
+	Copyright (C) 2014 Mattia Basaglia
+
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU Affero General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU Affero General Public License for more details.
+
+	You should have received a copy of the GNU Affero General Public License
+	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+	
+	
+	@licend  The above is the entire license notice for the JavaScript 
+	code in this file.
+*/
+"use strict";
+
 var luna_settings = {
 	framerate  :  60, // frames per second
 	moon_speed :  12, // pixels / frame * image_resize_factor
@@ -40,7 +65,7 @@ function LunaSettings(change) {
 	return settings;
 }
 
-function Luna(element=document.body, settings=luna_settings) {
+function Luna(element, settings) {
 	
 	this.StarAlpha = function (settings, distance) {
 		var alpha = 1 - Math.min(1,distance/settings.fade_distance);
@@ -73,14 +98,14 @@ function Luna(element=document.body, settings=luna_settings) {
 	}
 
 	this.EventMouseMove = function (event) {
-		var dx = (this.area.x + this.luna.client_x - event.clientX);
-		var dy = (this.area.y + this.luna.client_y - event.clientY);
+		var dx = (this.area.left + this.luna.client_x - event.clientX);
+		var dy = (this.area.top + this.luna.client_y - event.clientY);
 		this.moon.targetpos = { x : this.moon.restingpos.x + dx, y : this.moon.restingpos.y + dy };
 		
 		for(var s in this.stars) {
 			var box = this.stars[s].getBoundingClientRect();
-			dx = box.x + box.width / 2 - event.clientX;
-			dy = box.y + box.height / 2 - event.clientY;
+			dx = box.left + box.width / 2 - event.clientX;
+			dy = box.top + box.height / 2 - event.clientY;
 			this.stars[s].star_target = Math.min(Math.sqrt(dx*dx+dy*dy), this.settings.star.max_fade);
 			this.stars[s].star_speed = this.settings.star.fade_speed;
 		}
@@ -277,10 +302,6 @@ function Luna(element=document.body, settings=luna_settings) {
 	this.moon.style.zIndex = this.settings.z_index+2;
 	this.moon.style.height = 'auto';
 	this.parent.insertBefore(this.moon,null);
-	this.EventResize();
-	this.moon.style.left = this.moon.restingpos.x+'px';
-	this.moon.style.top = this.area.height+'px';
-	this.moon.targetpos = { x: this.moon.restingpos.x, y: this.moon.restingpos.y };
 	// stars
 	this.stars = [];
 	for (var i = 0; i < this.settings.star.number; i++)
@@ -318,9 +339,28 @@ function Luna(element=document.body, settings=luna_settings) {
 	}));
 	this.InsertMenuItem(this.menu, bp_menu);
 	// events
-	var thisluna = this;
-	window.addEventListener("resize",function(){thisluna.EventResize();});
-	setInterval(function(){thisluna.Step();}, 1000/this.settings.framerate);
-	this.parent.addEventListener("mousemove",function(event){thisluna.EventMouseMove(event);});
-	this.parent.addEventListener("mouseleave",function(){thisluna.EventMouseLeave();});
+	this.moon.onload = function() {
+		this.EventResize();
+		this.moon.style.left = this.moon.restingpos.x+'px';
+		this.moon.style.top = this.area.height+'px';
+		this.moon.targetpos = { x: this.moon.restingpos.x, y: this.moon.restingpos.y };
+		setInterval(this.Step.bind(this), 1000/this.settings.framerate);
+	}.bind(this);
+	window.addEventListener("resize",this.EventResize.bind(this));
+	this.parent.addEventListener("mousemove",this.EventMouseMove.bind(this));
+	this.parent.addEventListener("mouseleave",this.EventMouseLeave.bind(this));
 } 
+
+function SetupLuna(element,settings) {
+	
+	if (!element)
+		element = document.body;
+	
+	if (!settings)
+		settings = luna_settings;
+	else
+		settings = LunaSettings(settings);
+	
+	var luna = new Luna(element,settings);
+	return luna;
+}

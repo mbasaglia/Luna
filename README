@@ -1,2 +1,19 @@
+
 'Tis a script to bestow thy web page with the presence of Princess Luna 
-accompanied with fitting musick.
+possibly accompanied with fitting musick.
+
+
+Usage
+=====
+
+To use this script in thy web page load luna.js and call SetupLuna in
+the onload event, passing the element to set up (defaults to body)
+and settings to override if needed.
+
+
+License
+=======
+
+Thou art granted this script under the terms of the GNU Affero General Public
+License, version 3 or any later version.
+See COPYING or http://www.gnu.org/licenses/agpl.html for more information.
