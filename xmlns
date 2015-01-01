@@ -1,8 +1,7 @@
 XMLNS pony
 
-For any SVG element:
-
 pony:anim = eye
+	(Any SVG element)
 	Enable eye animation which follows the cursor.
 	Required attributes:
 	 * pony:anim-eye-top    maximum offset it can move up (in pixels)
@@ -12,6 +11,7 @@ pony:anim = eye
 	 * pony:anim-eye-speed  movemenet speed (in pixels / frame)
 
 pony:anim = sparkle
+	(Any SVG element)
 	Enable sparkle paritcle animation.
 	It doesn't affect the element with this attribute but rather its clones, 
 	the <use> referencing it. They are gonna have existing transformations 
@@ -29,4 +29,11 @@ pony:anim = sparkle
 	 * pony:anim-sparkle-cx         scale/rotation center (relative, in pixels)
 	 * pony:anim-sparkle-cy         scale/rotation center (relative, in pixels)
 	 
-	
+pony:anim = flow
+	<path>
+	Enable flowing mane animation.
+	Required attributes:
+	 * pony:anim-flow-speed  speed of the angle (in degrees/frame) the cosine
+	                         of which determines the position in the movement 
+	                         segment.
+	 * pony:anim-flow-radius maximum distance a poin can travel (in pixels)

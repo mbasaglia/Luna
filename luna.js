@@ -95,6 +95,305 @@ function RandomBetween(min, max) {
 	return Math.random() * (max-min) + min;
 }
 
+// A point to be moved by a flow animation
+function SvgPathAnimationPoint(segment) {
+	
+	// Sets the out control point to the captured reference
+	this.ControlPointOutCapture = function (segment,number) {
+		this.cp_out = {
+			x      : segment["x"+number],
+			y      : segment["y"+number],
+			segment: segment,
+			number : number
+		};
+	}
+	// Sets the out control point to the given coordinates
+	this.ControlPointOutSimple = function (x,y) {
+		this.cp_out = {
+			x      : x,
+			y      : y,
+		};
+	}
+	// Sets the in control point to the captured reference
+	this.ControlPointInCapture = function (segment,number) {
+		this.cp_in = {
+			x      : segment["x"+number],
+			y      : segment["y"+number],
+			segment: segment,
+			number : number
+		};
+	}
+	// Sets the in control point to the given coordinates
+	this.ControlPointInSimple = function (x,y) {
+		this.cp_in = {
+			x      : x,
+			y      : y,
+		};
+	}
+	
+	// Copies the relevant data from the other point to merge them
+	this.Join = function (point) {
+		var abserror = Math.abs(this.x - point.x) + Math.abs(this.y - point.y);
+		var relerror = abserror / (Math.abs(this.x)+Math.abs(this.y));
+		if ( relerror < 0.001 ) { // .1% accuracy
+			// close enough to be the same point
+			if (point.cp_in && !this.cp_in)
+				this.cp_in = point.cp_in;
+			if (point.cp_out && !this.cp_out)
+				this.cp_out = point.cp_out;
+			this.segments = this.segments.concat(point.segments);
+			return true;
+		}
+		return false;
+	}
+	
+	// Evaluates the moving angle
+	this.Setup = function() {
+		if ( !this.cp_in && !this.cp_out) {
+			var previous = i == 0 ? this.pony_points.length - 1 : i-1;
+			this.cp_in = { 
+				x: this.pony_points[previous].x,
+				y: this.pony_points[previous].y,
+			};
+			var next = (i+1) % this.pony_points.length;
+			this.cp_out = { 
+				x: this.pony_points[next].x,
+				y: this.pony_points[next].y,
+			};
+		} else if (!this.cp_in) {
+			this.cp_in = { 
+				x: this.x,
+				y: this.y,
+			};
+		} else if (!this.cp_out) {
+			this.cp_out = { 
+				x: this.x,
+				y: this.y,
+			};
+		}
+		
+		var tangent_angle = Math.atan2(
+			this.cp_out.y - this.cp_in.y,
+			this.cp_out.x - this.cp_in.x );
+		this.move_angle = tangent_angle + Math.PI/2;
+	}
+	
+	// Moves a fully initialized point
+	this.Move = function() {
+		this.move_param += this.move_speed/180*Math.PI;
+		var pos = Math.cos(this.move_param);
+		var dx = pos * this.move_radius * Math.cos(this.move_angle);
+		var dy = pos * this.move_radius * Math.sin(this.move_angle);
+		for (var k in this.segments) {
+			this.segments[k].x = this.x + dx;
+			this.segments[k].y = this.y + dy;
+		}
+		if (this.cp_in.segment) {
+			this.cp_in.segment["x"+this.cp_in.number] = this.cp_in.x + dx;
+			this.cp_in.segment["y"+this.cp_in.number] = this.cp_in.y + dy;
+		}
+		if (this.cp_out.segment) {
+			this.cp_out.segment["x"+this.cp_out.number] = this.cp_out.x + dx;
+			this.cp_out.segment["y"+this.cp_out.number] = this.cp_out.y + dy;
+		}
+		return { x: dx, y:dy };
+	}
+	
+	this.segments = [segment];
+	this.x = segment.x;
+	this.y = segment.y;
+	this.handles = [];
+	
+	this.move_param = Math.random()*Math.PI*2;
+}
+
+function SvgPathAnimation(path) {
+	
+	this.PushPoint = function (segment) {
+		var new_point = new SvgPathAnimationPoint(segment);
+		new_point.move_speed = Number(this.path.getAttribute("pony:anim-flow-speed"));
+		new_point.move_radius = Number(this.path.getAttribute("pony:anim-flow-radius"));
+		this.pony_points.push(new_point);
+		return new_point;
+	}
+	
+	this.ControlPointIn = function (segment,number) {
+		if (!this.pony_points.length)
+			return;
+		this.pony_points[this.pony_points.length-1].ControlPointInCapture(segment,number);
+	}
+	this.ControlPointInSimple = function (x,y) {
+		if (!this.pony_points.length)
+			return;
+		this.pony_points[this.pony_points.length-1].ControlPointInSimple(x,y);
+	}
+	
+	this.ControlPointOut = function (segment,number) {
+		if (!this.pony_points.length)
+			return;
+		this.pony_points[this.pony_points.length-1].ControlPointOutCapture(segment,number);
+	}
+	
+	this.ControlPointMirrorOut = function () {
+		if (!this.pony_points.length)
+			return null;
+		var point = this.pony_points[this.pony_points.length-1];
+		if (point.cp_in) {
+			point.ControlPointOutSimple(
+				point.x + (point.x - point.cp_in.x),
+				point.y + (point.y - point.cp_in.y)
+			);
+			return point.cp_out;
+		}
+		return { x: point.x, y: point.y };
+	}
+	
+	this.path = path;
+	
+	// Converts SVG path description to absolute coordinates
+	this.PathToAbsolute = function(path) {
+		var x = 0;
+		var y = 0;
+		var x0 = 0;
+		var y0 = 0;
+		var seg_list = path.pathSegList;
+		for (var j = 0; j < seg_list.numberOfItems; j++) {
+			var segment = seg_list.getItem(j);
+			var char = segment.pathSegTypeAsLetter;
+			var new_item = null;
+			switch(char) {
+				case 'M':
+					x0 = segment.x;
+					y0 = segment.x;
+					break;
+				case 'm':
+					new_item = path.createSVGPathSegMovetoAbs(x+segment.x,y+segment.y);
+					x0 = new_item.x;
+					y0 = new_item.x;
+					break;
+				case 'l':
+					new_item = 
+						path.createSVGPathSegLinetoAbs(x+segment.x,y+segment.y);
+					break;
+				case 'h':
+					new_item = 
+						path.createSVGPathSegLinetoHorizontalAbs(x+segment.x);
+					break;
+				case 'v':
+					new_item = 
+						path.createSVGPathSegLinetoVerticalAbs(y+segment.y);
+					break;
+				case 'c':
+					new_item = 
+						path.createSVGPathSegCurvetoCubicAbs(
+							x+segment.x, y+segment.y,
+							x+segment.x1,y+segment.y1, 
+							x+segment.x2,y+segment.y2
+						);
+					break;
+				case 's':
+					new_item = 
+						path.createSVGPathSegCurvetoCubicSmoothAbs(
+							x+segment.x, y+segment.y,
+							x+segment.x2,y+segment.y2
+						);
+					break;
+				case 'q':
+					new_item = 
+						path.createSVGPathSegCurvetoQuadraticAbs(
+							x+segment.x, y+segment.y,
+							x+segment.x1,y+segment.y1
+						);
+					break;
+				case 't':
+					new_item = 
+						path.createSVGPathSegCurvetoQuadraticSmoothAbs(x+segment.x, y+segment.y);
+					break;
+				case 'a':
+					new_item = 
+						path.createSVGPathSegArcAbs(x+segment.x, y+segment.y,
+							segment.r1, segment.r2, segment.angle,
+							segment.largeArcFlag, segment.sweepFlag );
+					break;
+				case 'z':
+				case 'Z':
+					x = x0;
+					y = y0;
+					break;
+			}
+			// replace relative item
+			if (new_item) {
+				seg_list.replaceItem(new_item,j);
+				segment = seg_list.getItem(j);
+			}
+			// update coordinates
+			if("x" in segment)
+				x = segment.x;
+			if ("y" in segment)
+				y = segment.y;
+			
+		}
+	}
+	
+	this.PathToAbsolute(path);
+	
+	this.pony_points = [];
+	
+	// Build points
+	for (var j = 0; j < path.animatedPathSegList.length; j++) {
+		var segment = path.animatedPathSegList[j];
+		var offset_x = 0;
+		var offset_y = 0;
+		switch (segment.pathSegTypeAsLetter.toUpperCase()) {
+			case 'M':
+			case 'L':
+				this.PushPoint(segment);
+				break;
+			case 'Z':
+				if (j > 0 && this.pony_points[0].Join(this.pony_points[j-1])) {
+					this.pony_points.pop();
+				}
+				// TODO support multiple segments
+				break;
+			case 'C':
+				this.ControlPointOut(segment,1);
+				this.PushPoint(segment);
+				this.ControlPointIn(segment,2);
+				break;
+			case 'S':
+				this.ControlPointMirrorOut();
+				this.PushPoint(segment);
+				this.ControlPointIn(segment,2);
+				break;
+			case 'Q':
+				this.ControlPointOut(segment,1); // simple?
+				this.PushPoint(segment);
+				this.ControlPointInSimple(segment.x1,segment.x1);
+				break;
+			case 'T':
+				var p = this.ControlPointMirrorOut();
+				this.PushPoint(segment);
+				this.ControlPointInSimple(p.y,p.x);
+				break;
+			case 'A':
+				// not fully supported
+				this.PushPoint(segment);
+				break;
+			case 'H': case 'V':
+				// not supported
+				break;
+		}
+	}
+	
+	// Fix stuff + calculations
+	for (var i = 0; i < this.pony_points.length; i++) {
+		this.pony_points[i].Setup();
+	}
+	
+	// Done!
+	path.pony_points = this.pony_points;
+}
+
 // Luna constructor
 function Luna(element, settings) {
 
@@ -160,120 +459,138 @@ function Luna(element, settings) {
 		this.stars.push(star_wrapper);
 	}
 	
+	// Simplifies the interface to evaluate an XPath expression
+	this.SvgXpath = function(expression,result_type,old_object) {
+		if (!result_type) 
+			result_type = XPathResult.ANY_TYPE;
+		return document.evaluate( expression, this.luna.svg, SvgNsResolver, 
+					result_type, old_object );
+	}
+	
 	this.SetupSvgAnimations = function() {
-		if (this.luna.svg) {
-			this.svg = {};
+		if (!this.luna.svg)
+			return;
+		
+		this.svg = {};
+		
+		var eyes_snapshot = this.SvgXpath('//svg:*[@pony:anim="eye"]',
+				XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE );
+		
+		this.svg.eyes = [];
+		for (var i = 0; i < eyes_snapshot.snapshotLength; i++) {
+			var eye = eyes_snapshot.snapshotItem(i);
 			
-			var eyes_snapshot = document.evaluate(
-					'//svg:*[@pony:anim="eye"]', this.luna.svg, SvgNsResolver, 
-					XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null );
+			var gaze = this.luna.svg.createSVGTransform();
+			gaze.setTranslate(0,0);
+			eye.transform.baseVal.insertItemBefore(gaze,0);
+			eye.gaze = gaze;
 			
-			this.svg.eyes = [];
-			for (var i = 0; i < eyes_snapshot.snapshotLength; i++) {
-				var eye = eyes_snapshot.snapshotItem(i);
+			var pony_anim = {
+				top   : Number(eye.getAttribute("pony:anim-eye-top")),
+				bottom: Number(eye.getAttribute("pony:anim-eye-bottom")),
+				left  : Number(eye.getAttribute("pony:anim-eye-left")),
+				right : Number(eye.getAttribute("pony:anim-eye-right")),
+				speed : Number(eye.getAttribute("pony:anim-eye-speed")),
+			};
+			pony_anim.height = pony_anim.bottom - pony_anim.top;
+			pony_anim.width = pony_anim.right - pony_anim.left;
+			pony_anim.cy = pony_anim.top + pony_anim.height / 2;
+			pony_anim.cx = pony_anim.left + pony_anim.width / 2;
+			eye.pony_anim = pony_anim;
+			
+			this.svg.eyes.push(eye);
+		}
+		
+		
+		this.svg.mane_stars = [];
+		
+		var star_parent_snapshot = this.SvgXpath(
+				'//svg:*[@pony:anim="sparkle"]',
+				XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE );
+		
+		for (var j = 0; j < eyes_snapshot.snapshotLength; j++) {
+			var original_star = star_parent_snapshot.snapshotItem(j);
+			if (!original_star.id) continue;
+			
+			var pony_anim = {
+				scale_max: Number(original_star.getAttribute("pony:anim-sparkle-scale-max")),
+				scale_min: Number(original_star.getAttribute("pony:anim-sparkle-scale-min")),
+				scale_inc: Number(original_star.getAttribute("pony:anim-sparkle-scale-inc")),
+				spin     : Number(original_star.getAttribute("pony:anim-sparkle-spin")),
+			}
+			pony_anim.scale_mid = pony_anim.scale_min + 
+				(pony_anim.scale_max-pony_anim.scale_min)/2;
+			if (original_star.hasAttribute("pony:anim-sparkle-cx") &&
+					original_star.hasAttribute("pony:anim-sparkle-cy")) {
+				pony_anim.cx = Number(original_star.getAttribute("pony:anim-sparkle-cx"));
+				pony_anim.cy = Number(original_star.getAttribute("pony:anim-sparkle-cy"));
+			} else {
+				var star_box = original_star.getBBox();
+				pony_anim.cx = star_box.width/2;
+				pony_anim.cy = star_box.height/2;
+			}
+			original_star.pony_anim = pony_anim;
+			
+			var clones_snapshot = this.SvgXpath(
+				'//svg:use[@xlink:href="#'+original_star.id+'"]',
+				XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE );
 				
-				var gaze = this.luna.svg.createSVGTransform();
-				gaze.setTranslate(0,0);
-				eye.transform.baseVal.insertItemBefore(gaze,0);
-				eye.gaze = gaze;
+			for (var i = 0; i < clones_snapshot.snapshotLength; i++) {
+				var mane_star = clones_snapshot.snapshotItem(i);
+				mane_star.pony_anim = pony_anim;
 				
-				var pony_anim = {
-					top   : Number(eye.getAttribute("pony:anim-eye-top")),
-					bottom: Number(eye.getAttribute("pony:anim-eye-bottom")),
-					left  : Number(eye.getAttribute("pony:anim-eye-left")),
-					right : Number(eye.getAttribute("pony:anim-eye-right")),
-					speed : Number(eye.getAttribute("pony:anim-eye-speed")),
+				var old_matrix = null;
+				if (mane_star.transform.baseVal[0])
+					old_matrix = mane_star.transform.baseVal[0].matrix;
+				
+				mane_star.transform.baseVal.clear();
+				
+				if (old_matrix) {
+					var translate = this.luna.svg.createSVGTransform();
+					translate.setTranslate(old_matrix.e,old_matrix.f);
+					mane_star.transform.baseVal.appendItem(translate);
+				}
+			
+				var scale = this.luna.svg.createSVGTransform();
+				var scale_factor = RandomBetween(
+					mane_star.pony_anim.scale_min,
+					mane_star.pony_anim.scale_max);
+				scale.setScale(scale_factor,scale_factor);
+				mane_star.transform.baseVal.appendItem(scale);
+				mane_star.scale = {
+					transform: scale,
+					max      : RandomBetween(scale_factor,mane_star.pony_anim.scale_max),
+					min      : RandomBetween(mane_star.pony_anim.scale_min,scale_factor),
+					speed    : (Math.round(Math.random())*2-1) * mane_star.pony_anim.scale_inc,
+					factor   : scale_factor
 				};
-				pony_anim.height = pony_anim.bottom - pony_anim.top;
-				pony_anim.width = pony_anim.right - pony_anim.left;
-				pony_anim.cy = pony_anim.top + pony_anim.height / 2;
-				pony_anim.cx = pony_anim.left + pony_anim.width / 2;
-				eye.pony_anim = pony_anim;
 				
-				this.svg.eyes.push(eye);
+				var center = this.luna.svg.createSVGTransform();
+				center.setTranslate(-pony_anim.cx,-pony_anim.cy);
+				mane_star.transform.baseVal.appendItem(center);
+				
+				var spin = this.luna.svg.createSVGTransform();
+				spin.setRotate(Math.random()*360,pony_anim.cx,pony_anim.cy);
+				mane_star.transform.baseVal.appendItem(spin);
+				mane_star.rotate = {
+					transform: spin,
+					speed    : (Math.random()*2-1)*mane_star.pony_anim.spin,
+				};
+				
+				this.svg.mane_stars.push(mane_star);
+				
 			}
-			
-			
-			this.svg.mane_stars = [];
-			
-			var star_parent_snapshot = document.evaluate(
-					'//svg:*[@pony:anim="sparkle"]', this.luna.svg, SvgNsResolver, 
-					XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null );
-			
-			for (var j = 0; j < eyes_snapshot.snapshotLength; j++) {
-				var original_star = star_parent_snapshot.snapshotItem(j);
-				if (!original_star.id) continue;
-				
-				var pony_anim = {
-					scale_max: Number(original_star.getAttribute("pony:anim-sparkle-scale-max")),
-					scale_min: Number(original_star.getAttribute("pony:anim-sparkle-scale-min")),
-					scale_inc: Number(original_star.getAttribute("pony:anim-sparkle-scale-inc")),
-					spin     : Number(original_star.getAttribute("pony:anim-sparkle-spin")),
-				}
-				pony_anim.scale_mid = pony_anim.scale_min + 
-					(pony_anim.scale_max-pony_anim.scale_min)/2;
-				if (original_star.hasAttribute("pony:anim-sparkle-cx") &&
-						original_star.hasAttribute("pony:anim-sparkle-cy")) {
-					pony_anim.cx = Number(original_star.getAttribute("pony:anim-sparkle-cx"));
-					pony_anim.cy = Number(original_star.getAttribute("pony:anim-sparkle-cy"));
-				} else {
-					var star_box = original_star.getBBox();
-					pony_anim.cx = star_box.width/2;
-					pony_anim.cy = star_box.height/2;
-				}
-				original_star.pony_anim = pony_anim;
-				
-				var clones_snapshot = document.evaluate(
-					'//svg:use[@xlink:href="#'+original_star.id+'"]', 
-					this.luna.svg, SvgNsResolver, 
-					XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null );
-					
-				for (var i = 0; i < clones_snapshot.snapshotLength; i++) {
-					var mane_star = clones_snapshot.snapshotItem(i);
-					mane_star.pony_anim = pony_anim;
-					
-					var old_matrix = null;
-					if (mane_star.transform.baseVal[0])
-						old_matrix = mane_star.transform.baseVal[0].matrix;
-					
-					mane_star.transform.baseVal.clear();
-					
-					if (old_matrix) {
-						var translate = this.luna.svg.createSVGTransform();
-						translate.setTranslate(old_matrix.e,old_matrix.f);
-						mane_star.transform.baseVal.appendItem(translate);
-					}
-				
-					var scale = this.luna.svg.createSVGTransform();
-					var scale_factor = RandomBetween(
-						mane_star.pony_anim.scale_min,
-						mane_star.pony_anim.scale_max);
-					scale.setScale(scale_factor,scale_factor);
-					mane_star.transform.baseVal.appendItem(scale);
-					mane_star.scale = {
-						transform: scale,
-						max      : RandomBetween(scale_factor,mane_star.pony_anim.scale_max),
-						min      : RandomBetween(mane_star.pony_anim.scale_min,scale_factor),
-						speed    : (Math.round(Math.random())*2-1) * mane_star.pony_anim.scale_inc,
-						factor   : scale_factor
-					};
-					
-					var center = this.luna.svg.createSVGTransform();
-					center.setTranslate(-pony_anim.cx,-pony_anim.cy);
-					mane_star.transform.baseVal.appendItem(center);
-					
-					var spin = this.luna.svg.createSVGTransform();
-					spin.setRotate(Math.random()*360,pony_anim.cx,pony_anim.cy);
-					mane_star.transform.baseVal.appendItem(spin);
-					mane_star.rotate = {
-						transform: spin,
-						speed    : (Math.random()*2-1)*mane_star.pony_anim.spin,
-					};
-					
-					this.svg.mane_stars.push(mane_star);
-					
-				}
-			}
+		}
+		
+		
+		var flow_snapshot = this.SvgXpath('//svg:path[@pony:anim="flow"]',
+				XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE );
+		
+		this.svg.flows = [];
+		for (var i = 0; i < flow_snapshot.snapshotLength; i++) {
+			var flow = flow_snapshot.snapshotItem(i);
+			new SvgPathAnimation(flow);
+			this.svg.flows.push(flow);
 		}
 	}
 	
@@ -329,6 +646,13 @@ function Luna(element, settings) {
 				eye.gaze.setTranslate(len*Math.cos(angle), 
 											len*Math.sin(angle));
 				
+			}
+		}
+		
+		for (var i in this.svg.flows) {
+			var flow = this.svg.flows[i];
+			for (var j in flow.pony_points) {
+				flow.pony_points[j].Move();
 			}
 		}
 	}
