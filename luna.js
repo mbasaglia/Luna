@@ -179,8 +179,8 @@ function SvgPathAnimationPoint(segment) {
 	}
 	
 	// Moves a fully initialized point
-	this.Move = function() {
-		this.move_param += this.move_speed/180*Math.PI;
+	this.Move = function(speed_correction) {
+		this.move_param += speed_correction*this.move_speed/180*Math.PI;
 		var pos = Math.cos(this.move_param);
 		var dx = pos * this.move_radius * Math.cos(this.move_angle);
 		var dy = pos * this.move_radius * Math.sin(this.move_angle);
@@ -335,13 +335,14 @@ function SvgPathAnimation(path) {
 		}
 	}
 	
+	// normalizedPathSegList ?
 	this.PathToAbsolute(path);
 	
 	this.pony_points = [];
 	
 	// Build points
-	for (var j = 0; j < path.animatedPathSegList.length; j++) {
-		var segment = path.animatedPathSegList[j];
+	for (var j = 0; j < path.pathSegList.numberOfItems; j++) {
+		var segment = path.pathSegList.getItem(j);
 		var offset_x = 0;
 		var offset_y = 0;
 		switch (segment.pathSegTypeAsLetter.toUpperCase()) {
@@ -599,7 +600,7 @@ function Luna(element, settings) {
 		for (var s in this.svg.mane_stars) {
 			var mane_star = this.svg.mane_stars[s];
 			var scale = mane_star.scale;
-			scale.factor += scale.speed;
+			scale.factor += scale.speed*this.speed_correction;
 			scale.transform.setScale(scale.factor,scale.factor);
 			if (scale.factor >= scale.max) {
 				scale.min = RandomBetween(mane_star.pony_anim.scale_min,
@@ -611,7 +612,7 @@ function Luna(element, settings) {
 				scale.speed = mane_star.pony_anim.scale_inc;
 			}
 			var rotate = mane_star.rotate;
-			rotate.transform.setRotate(rotate.transform.angle+rotate.speed,
+			rotate.transform.setRotate(rotate.transform.angle+rotate.speed*this.speed_correction,
 									   mane_star.pony_anim.cx,
 									   mane_star.pony_anim.cy);
 		}
@@ -641,7 +642,7 @@ function Luna(element, settings) {
 			} else {
 				var dx = eye.gaze.matrix.e;
 				var dy = eye.gaze.matrix.f;
-				var len = Math.max(0,Math.sqrt(dx*dx+dy*dy)-eye.pony_anim.speed);
+				var len = Math.max(0,Math.sqrt(dx*dx+dy*dy)-eye.pony_anim.speed*this.speed_correction);
 				var angle = Math.atan2(dy,dx);
 				eye.gaze.setTranslate(len*Math.cos(angle), 
 											len*Math.sin(angle));
@@ -652,7 +653,7 @@ function Luna(element, settings) {
 		for (var i in this.svg.flows) {
 			var flow = this.svg.flows[i];
 			for (var j in flow.pony_points) {
-				flow.pony_points[j].Move();
+				flow.pony_points[j].Move(this.speed_correction);
 			}
 		}
 	}
@@ -666,10 +667,10 @@ function Luna(element, settings) {
 			this.stars[s].star_core.style.opacity = 
 				this.StarAlpha(this.settings.star.core, this.stars[s].star_distance);
 			var delta = this.stars[s].star_distance - this.stars[s].star_target;
-			if (delta > this.stars[s].star_speed)
-				this.stars[s].star_distance -= this.stars[s].star_speed;
+			if (delta > this.stars[s].star_speed*this.speed_correction)
+				this.stars[s].star_distance -= this.stars[s].star_speed*this.speed_correction;
 			else if (delta < -this.stars[s].star_speed)
-				this.stars[s].star_distance += this.stars[s].star_speed;
+				this.stars[s].star_distance += this.stars[s].star_speed*this.speed_correction;
 			else {
 				this.stars[s].star_target = Math.random() * this.settings.star.max_fade;
 				this.stars[s].star_speed = this.settings.star.twinkle_speed;
@@ -681,7 +682,7 @@ function Luna(element, settings) {
 	this.MoveMoon = function() {
 		var dx = this.moon.targetpos.x - this.moon.x;
 		var dy = this.moon.targetpos.y - this.moon.y;
-		var speed = this.settings.moon_speed*this.imgratio;
+		var speed = this.settings.moon_speed*this.imgratio * this.speed_correction;
 		var len = Math.sqrt(dx*dx+dy*dy);
 		var angle = Math.atan2(dy,dx);
 		var next_pos = { x: this.moon.targetpos.x, y : this.moon.targetpos.y };
@@ -792,6 +793,11 @@ function Luna(element, settings) {
 
 	// Executes a frame
 	this.Step = function() {
+		var time_before = window.performance.now();
+		this.frame_time = time_before - this.frame_timestamp;
+		this.frame_timestamp = time_before;
+		this.speed_correction = this.frame_time / this.target_frame_time;
+		
 		this.MoveMoon();
 		this.TwinkleStars();
 		if (this.luna.svg)
@@ -816,8 +822,13 @@ function Luna(element, settings) {
 			
 			this.SetupSvgAnimations();
 			
+			//timing
+			this.target_frame_time = 1000/this.settings.framerate;
+			this.frame_time = this.target_frame_time;
+			this.frame_timestamp = window.performance.now();
+			setInterval(this.Step.bind(this), this.target_frame_time);
+			
 			// events
-			setInterval(this.Step.bind(this), 1000/this.settings.framerate);
 			window.addEventListener("resize",this.EventResize.bind(this));
 			this.parent.addEventListener("mousemove",this.EventMouseMove.bind(this));
 			this.parent.addEventListener("mouseleave",this.EventMouseLeave.bind(this));
