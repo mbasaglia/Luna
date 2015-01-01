@@ -27,3 +27,52 @@ body {
     font-family: "Celestia";
     src: url("media/CelestiaMediumRedux_alt1.55.ttf");
 }
+
+/* Buttons */
+.buttons {
+    bottom: 0;
+    left: 0;
+    list-style: none;
+    margin: 0;
+    padding: 1ex;
+    position: absolute;
+	z-index: 100;
+}
+.buttons li {
+    display: inline-block;
+	margin: 0 5px;
+    opacity: 0.3;
+}
+.buttons:hover {
+	background: rgba(0,0,0,0.3);
+	border-top: 1px solid black;
+	border-right: 1px solid black;
+	border-radius: 0 1ex 0 0;
+}
+.buttons:hover li {
+    opacity: 0.6;
+}
+.buttons li:hover {
+    opacity: 1;
+}
+.buttons9 img, .buttons input {
+    vertical-align: middle;
+}
+.buttons form {
+    display: inline-block;
+}
+.custom-button {
+	background-color: #eee;
+    background-image: linear-gradient(#fcfcfc, #eee);
+	border: 1px solid #d5d5d5;
+    border-radius: 3px;
+	padding: 3pt 6pt;
+}
+.custom-button, .custom-button a {
+    color: #333;
+    display: inline-block;
+    font-family: sans-serif;
+    font-size: small;
+    font-weight: bold;
+    text-decoration: none;
+}
