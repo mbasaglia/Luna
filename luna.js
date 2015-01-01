@@ -55,21 +55,6 @@ var luna_settings = {
 			max_alpha    : 0.8,
 		},
 	},
-	svg: {
-		star : {
-			scale_min: 0.5, // multiplier
-			scale_max: 2.5, // multiplier
-			scale_inc:0.05, // multiplier increase
-			spin     :   2, // rotations speed in degree / frame
-		},
-		eye : { // Translation of the pupil, in svg pixels
-			top   : -15,
-			bottom:  10,
-			left  : -20,
-			right :   0,
-			speed :   3, // svg pixels / frame NOTE only used when returning to resting position TODO use when following mouse too
-		},
-	},
 };
 
 // Simple clone of a simple object
@@ -99,7 +84,8 @@ function SvgNsResolver(prefix) {
 		cc   : "http://creativecommons.org/ns#",
 		xlink: "http://www.w3.org/1999/xlink",
 		dc   : "http://purl.org/dc/elements/1.1/",
-		svg  : "http://www.w3.org/2000/svg"
+		svg  : "http://www.w3.org/2000/svg",
+		pony : "http://mlp.mattbas.org/luna/xmlns",
 	};
 	return xmlns[prefix] || null;
 }
@@ -174,90 +160,119 @@ function Luna(element, settings) {
 		this.stars.push(star_wrapper);
 	}
 	
-	// Calculates scaling factor for a svg mane/tail star
-	this.SvgStarScale = function() {
-		return RandomBetween(this.settings.svg.star.scale_min,
-							 this.settings.svg.star.scale_max);
-	}
-	
 	this.SetupSvgAnimations = function() {
 		if (this.luna.svg) {
 			this.svg = {};
 			
-			this.svg.eye = document.evaluate(
-					'//svg:g[@id="pony_eye_out"]', this.luna.svg, SvgNsResolver, 
-					XPathResult.ANY_UNORDERED_NODE_TYPE, null )
-				.singleNodeValue;
-			var gaze = this.luna.svg.createSVGTransform();
-			gaze.setTranslate(0,0);
-			this.svg.eye.firstElementChild.transform.baseVal.insertItemBefore(gaze,0);
-			this.svg.eye.gaze = gaze;
+			var eyes_snapshot = document.evaluate(
+					'//svg:*[@pony:anim="eye"]', this.luna.svg, SvgNsResolver, 
+					XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null );
 			
-			var eyebox = this.settings.svg.eye;
-			eyebox.height = eyebox.bottom - eyebox.top;
-			eyebox.width = eyebox.right - eyebox.left;
-			eyebox.cy = eyebox.top + eyebox.height / 2;
-			eyebox.cx = eyebox.left + eyebox.width / 2;
+			this.svg.eyes = [];
+			for (var i = 0; i < eyes_snapshot.snapshotLength; i++) {
+				var eye = eyes_snapshot.snapshotItem(i);
+				
+				var gaze = this.luna.svg.createSVGTransform();
+				gaze.setTranslate(0,0);
+				eye.transform.baseVal.insertItemBefore(gaze,0);
+				eye.gaze = gaze;
+				
+				var pony_anim = {
+					top   : Number(eye.getAttribute("pony:anim-eye-top")),
+					bottom: Number(eye.getAttribute("pony:anim-eye-bottom")),
+					left  : Number(eye.getAttribute("pony:anim-eye-left")),
+					right : Number(eye.getAttribute("pony:anim-eye-right")),
+					speed : Number(eye.getAttribute("pony:anim-eye-speed")),
+				};
+				pony_anim.height = pony_anim.bottom - pony_anim.top;
+				pony_anim.width = pony_anim.right - pony_anim.left;
+				pony_anim.cy = pony_anim.top + pony_anim.height / 2;
+				pony_anim.cx = pony_anim.left + pony_anim.width / 2;
+				eye.pony_anim = pony_anim;
+				
+				this.svg.eyes.push(eye);
+			}
 			
-			this.settings.svg.star.scale_mid = this.settings.svg.star.scale_min + 
-				(this.settings.svg.star.scale_max-this.settings.svg.star.scale_min)/2;
-			
-			var original_star = document.evaluate(
-				'//svg:path[@id="star_original"]', this.luna.svg, SvgNsResolver, 
-				XPathResult.ANY_UNORDERED_NODE_TYPE, null );
-			var star_box = original_star.singleNodeValue.getBBox();
-			
-			var snapshot = document.evaluate(
-				'//svg:use[@xlink:href="#star_original"]', 
-				this.luna.svg, SvgNsResolver, 
-				XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null );
 			
 			this.svg.mane_stars = [];
-			for (var i = 0; i < snapshot.snapshotLength; i++) {
-				var mane_star = snapshot.snapshotItem(i);
+			
+			var star_parent_snapshot = document.evaluate(
+					'//svg:*[@pony:anim="sparkle"]', this.luna.svg, SvgNsResolver, 
+					XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null );
+			
+			for (var j = 0; j < eyes_snapshot.snapshotLength; j++) {
+				var original_star = star_parent_snapshot.snapshotItem(j);
+				if (!original_star.id) continue;
 				
-				var old_matrix = mane_star.transform.baseVal[0].matrix;
-				mane_star.transform.baseVal.clear();
+				var pony_anim = {
+					scale_max: Number(original_star.getAttribute("pony:anim-sparkle-scale-max")),
+					scale_min: Number(original_star.getAttribute("pony:anim-sparkle-scale-min")),
+					scale_inc: Number(original_star.getAttribute("pony:anim-sparkle-scale-inc")),
+					spin     : Number(original_star.getAttribute("pony:anim-sparkle-spin")),
+				}
+				pony_anim.scale_mid = pony_anim.scale_min + 
+					(pony_anim.scale_max-pony_anim.scale_min)/2;
+				if (original_star.hasAttribute("pony:anim-sparkle-cx") &&
+						original_star.hasAttribute("pony:anim-sparkle-cy")) {
+					pony_anim.cx = Number(original_star.getAttribute("pony:anim-sparkle-cx"));
+					pony_anim.cy = Number(original_star.getAttribute("pony:anim-sparkle-cy"));
+				} else {
+					var star_box = original_star.getBBox();
+					pony_anim.cx = star_box.width/2;
+					pony_anim.cy = star_box.height/2;
+				}
+				original_star.pony_anim = pony_anim;
 				
-				var translate = this.luna.svg.createSVGTransform();
-				translate.setTranslate(old_matrix.e,old_matrix.f);
-				mane_star.transform.baseVal.appendItem(translate);
-				
-				var scale = this.luna.svg.createSVGTransform();
-				var scale_factor = this.SvgStarScale();
-				scale.setScale(scale_factor,scale_factor);
-				mane_star.transform.baseVal.appendItem(scale);
-				
-				mane_star.scale = {
-					transform: scale,
-					max      : RandomBetween(scale_factor,this.settings.svg.star.scale_max),
-					min      : RandomBetween(this.settings.svg.star.scale_min,scale_factor),
-					speed    : (Math.round(Math.random())*2-1) * this.settings.svg.star.scale_inc,
-					factor   : scale_factor
-				};
-				
-				
-				translate = this.luna.svg.createSVGTransform();
-				translate.setTranslate(-star_box.width/2,-star_box.height/2);
-				mane_star.transform.baseVal.appendItem(translate);
-				
-				var spin = this.luna.svg.createSVGTransform();
-				spin.setRotate(Math.random()*360,star_box.width/2,star_box.height/2);
-				mane_star.transform.baseVal.appendItem(spin);
-				
-				
-				mane_star.rotate = {
-					transform: spin,
-					speed    : (Math.random()*2-1)*this.settings.svg.star.spin,
-					center   : { 
-						x: star_box.width/2,
-						y: star_box.height/2
+				var clones_snapshot = document.evaluate(
+					'//svg:use[@xlink:href="#'+original_star.id+'"]', 
+					this.luna.svg, SvgNsResolver, 
+					XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null );
+					
+				for (var i = 0; i < clones_snapshot.snapshotLength; i++) {
+					var mane_star = clones_snapshot.snapshotItem(i);
+					mane_star.pony_anim = pony_anim;
+					
+					var old_matrix = null;
+					if (mane_star.transform.baseVal[0])
+						old_matrix = mane_star.transform.baseVal[0].matrix;
+					
+					mane_star.transform.baseVal.clear();
+					
+					if (old_matrix) {
+						var translate = this.luna.svg.createSVGTransform();
+						translate.setTranslate(old_matrix.e,old_matrix.f);
+						mane_star.transform.baseVal.appendItem(translate);
 					}
-				};
 				
-				this.svg.mane_stars.push(mane_star);
-				
-				
+					var scale = this.luna.svg.createSVGTransform();
+					var scale_factor = RandomBetween(
+						mane_star.pony_anim.scale_min,
+						mane_star.pony_anim.scale_max);
+					scale.setScale(scale_factor,scale_factor);
+					mane_star.transform.baseVal.appendItem(scale);
+					mane_star.scale = {
+						transform: scale,
+						max      : RandomBetween(scale_factor,mane_star.pony_anim.scale_max),
+						min      : RandomBetween(mane_star.pony_anim.scale_min,scale_factor),
+						speed    : (Math.round(Math.random())*2-1) * mane_star.pony_anim.scale_inc,
+						factor   : scale_factor
+					};
+					
+					var center = this.luna.svg.createSVGTransform();
+					center.setTranslate(-pony_anim.cx,-pony_anim.cy);
+					mane_star.transform.baseVal.appendItem(center);
+					
+					var spin = this.luna.svg.createSVGTransform();
+					spin.setRotate(Math.random()*360,pony_anim.cx,pony_anim.cy);
+					mane_star.transform.baseVal.appendItem(spin);
+					mane_star.rotate = {
+						transform: spin,
+						speed    : (Math.random()*2-1)*mane_star.pony_anim.spin,
+					};
+					
+					this.svg.mane_stars.push(mane_star);
+					
+				}
 			}
 		}
 	}
@@ -265,51 +280,56 @@ function Luna(element, settings) {
 	// Performs animations on the SVG
 	this.SvgAnimation = function() {
 		for (var s in this.svg.mane_stars) {
-			var scale = this.svg.mane_stars[s].scale;
+			var mane_star = this.svg.mane_stars[s];
+			var scale = mane_star.scale;
 			scale.factor += scale.speed;
 			scale.transform.setScale(scale.factor,scale.factor);
 			if (scale.factor >= scale.max) {
-				scale.min = RandomBetween(this.settings.svg.star.scale_min,
-										  this.settings.svg.star.scale_mid),
-				scale.speed = -this.settings.svg.star.scale_inc;
+				scale.min = RandomBetween(mane_star.pony_anim.scale_min,
+										  mane_star.pony_anim.scale_mid),
+				scale.speed = -mane_star.pony_anim.scale_inc;
 			} else if (scale.factor <= scale.min) {
-				scale.max = RandomBetween(this.settings.svg.star.scale_mid,
-										  this.settings.svg.star.scale_max),
-				scale.speed = this.settings.svg.star.scale_inc;
+				scale.max = RandomBetween(mane_star.pony_anim.scale_mid,
+										  mane_star.pony_anim.scale_max),
+				scale.speed = mane_star.pony_anim.scale_inc;
 			}
-			var rotate = this.svg.mane_stars[s].rotate;
+			var rotate = mane_star.rotate;
 			rotate.transform.setRotate(rotate.transform.angle+rotate.speed,
-									   rotate.center.x,rotate.center.y);
+									   mane_star.pony_anim.cx,
+									   mane_star.pony_anim.cy);
 		}
 		
-		if (!isNaN(this.mouse.x)) {
-			var eyebox = this.settings.svg.eye;			
-			var client_eyebox = this.svg.eye.getBoundingClientRect();
-			client_eyebox.cy = client_eyebox.top + client_eyebox.height/2;
-			client_eyebox.cx = client_eyebox.left + client_eyebox.width/2;
-			
-			var dx = this.mouse.x - client_eyebox.cx;
-			if (dy < 0)
-				dx = dx/(client_eyebox.cx-this.area.left);
-			else
-				dx = dx/(this.area.right-client_eyebox.cx);
-			
-			var dy = this.mouse.y - client_eyebox.cy;
-			if (dy < 0)
-				dy = dy/(client_eyebox.cy-this.area.top);
-			else
-				dy = dy/(this.area.bottom-client_eyebox.cy);
-			
-			this.svg.eye.gaze.setTranslate(dx * eyebox.width  + eyebox.cx, 
-										   dy * eyebox.height + eyebox.cy);
-		} else {
-			var dx = this.svg.eye.gaze.matrix.e;
-			var dy = this.svg.eye.gaze.matrix.f;
-			var len = Math.max(0,Math.sqrt(dx*dx+dy*dy)-this.settings.svg.eye.speed);
-			var angle = Math.atan2(dy,dx);
-			this.svg.eye.gaze.setTranslate(len*Math.cos(angle), 
-										   len*Math.sin(angle));
-			
+		for (var i in this.svg.eyes) {
+			var eye = this.svg.eyes[i];
+			// TODO normalize this a bit and use pony_anim.speed when following the mouse
+			if (!isNaN(this.mouse.x)) {		
+				var client_eyebox = eye.getBoundingClientRect();
+				client_eyebox.cy = client_eyebox.top + client_eyebox.height/2;
+				client_eyebox.cx = client_eyebox.left + client_eyebox.width/2;
+				
+				var dx = this.mouse.x - client_eyebox.cx;
+				if (dy < 0)
+					dx = dx/(client_eyebox.cx-this.area.left);
+				else
+					dx = dx/(this.area.right-client_eyebox.cx);
+				
+				var dy = this.mouse.y - client_eyebox.cy;
+				if (dy < 0)
+					dy = dy/(client_eyebox.cy-this.area.top);
+				else
+					dy = dy/(this.area.bottom-client_eyebox.cy);
+				
+				eye.gaze.setTranslate(dx * eye.pony_anim.width  + eye.pony_anim.cx, 
+											dy * eye.pony_anim.height + eye.pony_anim.cy);
+			} else {
+				var dx = eye.gaze.matrix.e;
+				var dy = eye.gaze.matrix.f;
+				var len = Math.max(0,Math.sqrt(dx*dx+dy*dy)-eye.pony_anim.speed);
+				var angle = Math.atan2(dy,dx);
+				eye.gaze.setTranslate(len*Math.cos(angle), 
+											len*Math.sin(angle));
+				
+			}
 		}
 	}
 	

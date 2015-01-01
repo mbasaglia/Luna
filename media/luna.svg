@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" height="1200" viewBox="0 0 1200 1200" width="1200" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<svg xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" height="1200" viewBox="0 0 1200 1200" width="1200" xmlns:pony="http://mlp.mattbas.org/luna/xmlns" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/">
  <defs>
   <linearGradient id="luna_eye">
    <stop style="stop-color:#005877" offset="0"/>
@@ -14,29 +14,29 @@
    <use xlink:href="#path4365" height="100%" width="100%" y="0" x="0"/>
   </clipPath>
  </defs>
- <g style="opacity:0">
-  <rect style="opacity:1;fill:#172c65" height="204.08" width="237" y="-484.58" x="799.39"/>
-  <rect style="opacity:1;fill:#263270" height="90.409" width="116.67" y="516.84" x="-188.9"/>
-  <rect style="opacity:1;fill:#1d3271" height="217.25" width="231.73" y="-488.53" x="568.97"/>
-  <rect style="opacity:1;fill:#03102f" height="164.58" width="472.69" y="-650.49" x="563.7"/>
-  <rect style="opacity:1;fill:#6b6dcc" height="184.33" width="206.72" y="-649.17" x="1070.6"/>
-  <rect style="opacity:1;fill:#8a92cf" height="198.82" width="204.08" y="-467.47" x="1085.1"/>
-  <rect style="opacity:1;fill:#727fb6" height="202.77" width="221.2" y="-462.2" x="1287.9"/>
-  <rect style="opacity:1;fill:#565eb0" height="181.7" width="227.78" y="-646.53" x="1281.3"/>
-  <rect style="opacity:1;fill:#01000e" height="221.2" width="242.27" y="-483.27" x="1540.7"/>
-  <rect style="opacity:1;fill:#4a50a8" height="167.22" width="255.43" y="-643.9" x="1532.8"/>
-  <ellipse style="opacity:1;fill:#bcccdb" rx="61.225" ry="53.325" cy="-451.01" cx="1667.7"/>
-  <rect style="opacity:1;fill:#0b3dac" height="188.07" width="229.03" y="-510.6" x="222.18"/>
-  <rect style="opacity:1;fill:#2b2bae;fill-opacity:.50196" height="195.52" width="212.27" y="-698.67" x="235.21"/>
-  <rect style="opacity:1;fill:#5c41c1" height="163.86" width="234.62" y="-862.53" x="225.9"/>
-  <path style="opacity:1;fill:#80baf5" d="m294.8-395.15-33.856-19.014-38.764 2.2557 19.014-33.856-2.2557-38.764 33.856 19.014 38.764-2.2557-19.014 33.856z"/>
-  <ellipse style="opacity:1;fill:#bcccdb" rx="105.67" ry="135.46" cy="-408.95" cx="2062.9"/>
-  <rect style="opacity:1;fill:#4f73be" height="77.275" width="346.34" y="-571.42" x="1889.3"/>
-  <ellipse style="opacity:1;fill:url(#linearGradient5039)" rx="89.379" ry="104.28" cy="-350.76" cx="1983.3"/>
-  <rect style="opacity:1;fill:#42c2b2" height="35.379" width="100.55" y="-325.63" x="2004.7"/>
-  <rect style="opacity:1;fill:#6ccccf" height="39.103" width="109.86" y="-287.45" x="2000.1"/>
-  <rect style="opacity:1;fill:#2b2bae" height="195.52" width="212.27" y="-700.03" x="43.769"/>
-  <path id="star_original" style="opacity:1;fill:#80baf5;fill-opacity:.64246" d="m8 16-1.3153-6.6847-6.6847-1.3153 6.6847-1.3153 1.3153-6.6847 1.3153 6.6847 6.6847 1.3153-6.6847 1.3153z"/>
+ <g style="display:none">
+  <rect style="fill:#172c65" height="204.08" width="237" y="-484.58" x="799.39"/>
+  <rect style="fill:#263270" height="90.409" width="116.67" y="516.84" x="-188.9"/>
+  <rect style="fill:#1d3271" height="217.25" width="231.73" y="-488.53" x="568.97"/>
+  <rect style="fill:#03102f" height="164.58" width="472.69" y="-650.49" x="563.7"/>
+  <rect style="fill:#6b6dcc" height="184.33" width="206.72" y="-649.17" x="1070.6"/>
+  <rect style="fill:#8a92cf" height="198.82" width="204.08" y="-467.47" x="1085.1"/>
+  <rect style="fill:#727fb6" height="202.77" width="221.2" y="-462.2" x="1287.9"/>
+  <rect style="fill:#565eb0" height="181.7" width="227.78" y="-646.53" x="1281.3"/>
+  <rect style="fill:#01000e" height="221.2" width="242.27" y="-483.27" x="1540.7"/>
+  <rect style="fill:#4a50a8" height="167.22" width="255.43" y="-643.9" x="1532.8"/>
+  <ellipse style="fill:#bcccdb" rx="61.225" ry="53.325" cy="-451.01" cx="1667.7"/>
+  <rect style="fill:#0b3dac" height="188.07" width="229.03" y="-510.6" x="222.18"/>
+  <rect style="fill:#2b2bae;fill-opacity:.50196" height="195.52" width="212.27" y="-698.67" x="235.21"/>
+  <rect style="fill:#5c41c1" height="163.86" width="234.62" y="-862.53" x="225.9"/>
+  <path style="fill:#80baf5" d="m294.8-395.15-33.856-19.014-38.764 2.2557 19.014-33.856-2.2557-38.764 33.856 19.014 38.764-2.2557-19.014 33.856z"/>
+  <ellipse style="fill:#bcccdb" rx="105.67" ry="135.46" cy="-408.95" cx="2062.9"/>
+  <rect style="fill:#4f73be" height="77.275" width="346.34" y="-571.42" x="1889.3"/>
+  <ellipse style="fill:url(#linearGradient5039)" rx="89.379" ry="104.28" cy="-350.76" cx="1983.3"/>
+  <rect style="fill:#42c2b2" height="35.379" width="100.55" y="-325.63" x="2004.7"/>
+  <rect style="fill:#6ccccf" height="39.103" width="109.86" y="-287.45" x="2000.1"/>
+  <rect style="fill:#2b2bae;display:inline" height="195.52" width="212.27" y="-700.03" x="43.769"/>
+  <path id="star_original" style="fill:#80baf5;display:inline;fill-opacity:.64246" pony:anim-sparkle-scale-max="2.2" pony:anim-sparkle-cx="8" pony:anim-sparkle-cy="8" pony:anim-sparkle-scale-min="0.1" pony:anim-sparkle-scale-inc="0.05" pony:anim-sparkle-spin="2" pony:anim="sparkle" d="m8 16-1.3153-6.6847-6.6847-1.3153 6.6847-1.3153 1.3153-6.6847 1.3153 6.6847 6.6847 1.3153-6.6847 1.3153z"/>
  </g>
  <g style="display:none">
   <rect style="fill:#161922" height="1200" width="1200" y="0" x="0"/>
@@ -218,10 +218,10 @@
    <g>
     <path d="m533.11 361.08c2.4901 2.0224 7.0937 3.799 12.708 5.0311 5.6032 1.2297 12.246 1.927 18.912 1.8183 6.5471-0.10671 13.315-0.9942 19.184-3.0514 5.8393-2.0467 11.405-5.4734 14.673-11.126 0.0677-0.13595 0.13397-0.27282 0.19882-0.41063a4.8907 4.8907 90 0 0 -8.8503 -4.1649c-0.034 0.0723-0.0689 0.14424-0.10447 0.21577-1.1678 3.2582-4.0403 6.242-8.7516 8.7007-4.6569 2.4303-10.54 4.0415-16.731 4.9326-6.234 0.89728-12.631 1.0448-18.175 0.65202-5.5108-0.39038-10.22-1.3175-13.062-2.5972z"/>
     <path d="m547.78 379.71c2.4038 1.815 6.3694 2.8292 11.024 3.0912 4.6487 0.2617 9.9575-0.22053 15.143-1.3661 5.1457-1.1369 10.316-2.9588 14.591-5.4664 4.1537-2.4362 8.0759-5.8794 9.7659-10.642 0.008-0.0291 0.0158-0.0583 0.0236-0.0876a4.615 4.615 90 0 0 -8.9197 -2.3731c0-0.00001-0.009 0.034-0.009 0.034-0.15776 2.0956-1.6417 4.6827-4.817 7.3758-3.0993 2.6286-7.3284 4.9447-11.957 6.7304-4.5954 1.773-9.4934 2.9902-13.868 3.4913-4.3519 0.49851-8.2891 0.30588-10.978-0.78758z"/>
-    <path d="m549.42 396.76c7.5575 2.4853 19.27 1.0838 29.749-2.6011 5.2156-1.834 10.239-4.2718 14.323-7.161 3.3397-2.3626 6.3292-5.2221 8.1492-8.5836 0.33099-0.73959 0.61031-1.5027 0.82701-2.2873a4.0767 4.0767 90 0 0 -7.8591 -2.1706c-0.0992 0.35915-0.23443 0.7351-0.41002 1.1276-0.59318 2.0699-2.1824 4.4747-4.7559 6.9695-3.0726 2.9786-7.2537 5.8042-11.941 8.1847-9.3183 4.7323-20.388 7.5834-28.082 6.5219z"/>
+    <path d="m549.42 396.76c7.5575 2.4853 19.27 1.0838 29.749-2.6011 5.2156-1.834 10.239-4.2718 14.323-7.161 3.3397-2.3626 6.3292-5.2221 8.1492-8.5836 0.33099-0.73959 0.61031-1.5027 0.82701-2.2873a4.0766 4.0766 90 0 0 -7.8591 -2.1706c-0.0992 0.35915-0.23443 0.7351-0.41002 1.1276-0.59318 2.0699-2.1824 4.4747-4.7559 6.9695-3.0726 2.9786-7.2537 5.8042-11.941 8.1847-9.3183 4.7323-20.388 7.5834-28.082 6.5219z"/>
     <path id="path4365" d="m722.04 444.65c2.3214-31.429-5.373-72.202-32.482-101.28-16.45-17.645-44.597-38.722-82.806-23.016-22.954 9.4358-22.889 64.502-3.7941 89.326 35.355 45.962 112.4 40.436 119.08 34.97z" style="fill:#bcccdb"/>
     <g id="pony_eye_out" clip-path="url(#clipPath10655)">
-     <g id="pony_eye_in" clip-path="none">
+     <g id="pony_eye_in" pony:anim-eye-top="-15" pony:anim="eye" clip-path="none" pony:anim-eye-speed="3" pony:anim-eye-left="-20" pony:anim-eye-right="0" pony:anim-eye-bottom="20">
       <ellipse id="ellipse4368" style="fill:url(#linearGradient6338)" clip-path="none" rx="32.695" ry="49.786" transform="matrix(1 0 .14698 .98914 -497.6 147.47)" cy="251.63" cx="1154.2"/>
       <g transform="translate(-498.14 143.54)" clip-path="url(#clipPath4397)">
        <path d="m1150.6 259.14 33.335-7.3236 0.7576 5.3033-31.062 28.284z" style="fill:#42c2b2"/>
