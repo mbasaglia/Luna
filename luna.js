@@ -131,16 +131,20 @@ function SvgPathAnimationPoint(segment) {
 		};
 	}
 	
+	// Copies some attributes if they are needed
+	this.MaybeCopy = function(object,attributes) {
+		for(var i in attributes)
+			if (object[attributes[i]] && !this[attributes[i]])
+				this[attributes[i]] = object[attributes[i]];
+	}
+	
 	// Copies the relevant data from the other point to merge them
 	this.Join = function (point) {
 		var abserror = Math.abs(this.x - point.x) + Math.abs(this.y - point.y);
 		var relerror = abserror / (Math.abs(this.x)+Math.abs(this.y));
 		if ( relerror < 0.001 ) { // .1% accuracy
 			// close enough to be the same point
-			if (point.cp_in && !this.cp_in)
-				this.cp_in = point.cp_in;
-			if (point.cp_out && !this.cp_out)
-				this.cp_out = point.cp_out;
+			this.MaybeCopy(point,["cp_in","cp_out","next_neighbour","prev_neighbour"]);
 			this.segments = this.segments.concat(point.segments);
 			return true;
 		}
@@ -176,14 +180,49 @@ function SvgPathAnimationPoint(segment) {
 			this.cp_out.y - this.cp_in.y,
 			this.cp_out.x - this.cp_in.x );
 		this.move_angle = tangent_angle + Math.PI/2;
+	
+		this.move_param = Math.random()*Math.PI*2;
+		
+		// Uncomment to make waves relative to their neighbours (standing wave)
+		// what it does is that 
+		// when pos == 1 => base shape
+		// when pos == 0 => all troughs and crests cancel out in the middle
+		/*if (this.next_neighbour && this.prev_neighbour) {
+			var average = {
+				x : (this.next_neighbour.x + this.prev_neighbour.x) / 2,
+				y : (this.next_neighbour.y + this.prev_neighbour.y) / 2,
+			};
+			average.x = (average.x + this.x) / 2;
+			average.y = (average.y + this.y) / 2;
+		
+			this.origin_delta = {
+				x : average.x - this.x,
+				y : average.y - this.y,
+			};
+			this.move_radius = Math.sqrt(this.origin_delta.x*this.origin_delta.x,
+									this.origin_delta.y*this.origin_delta.y);
+			
+			this.pony_pos = { 
+				x: (-this.origin_delta.x) / (this.move_radius*Math.cos(this.move_angle)),
+				y: (-this.origin_delta.y) / (this.move_radius*Math.sin(this.move_angle)),
+			};
+		} else 
+			this.pony_pos = { x: 1, y: 1};*/
 	}
 	
 	// Moves a fully initialized point
 	this.Move = function(speed_correction) {
 		this.move_param += speed_correction*this.move_speed/180*Math.PI;
 		var pos = Math.cos(this.move_param);
+		// uncomment for standing wave:
+		/*var dx = this.pony_pos.x * pos * this.move_radius * Math.cos(this.move_angle);
+		var dy = this.pony_pos.y * pos * this.move_radius * Math.sin(this.move_angle);*/
 		var dx = pos * this.move_radius * Math.cos(this.move_angle);
 		var dy = pos * this.move_radius * Math.sin(this.move_angle);
+		if (this.origin_delta) {
+			dx += this.origin_delta.x;
+			dy += this.origin_delta.y;
+		}
 		for (var k in this.segments) {
 			this.segments[k].x = this.x + dx;
 			this.segments[k].y = this.y + dy;
@@ -203,17 +242,19 @@ function SvgPathAnimationPoint(segment) {
 	this.x = segment.x;
 	this.y = segment.y;
 	this.handles = [];
-	
-	this.move_param = Math.random()*Math.PI*2;
 }
 
 function SvgPathAnimation(path) {
 	
-	this.PushPoint = function (segment) {
+	this.PushPoint = function (segment,index) {
 		var new_point = new SvgPathAnimationPoint(segment);
 		new_point.move_speed = Number(this.path.getAttribute("pony:anim-flow-speed"));
 		new_point.move_radius = Number(this.path.getAttribute("pony:anim-flow-radius"));
 		this.pony_points.push(new_point);
+		if (index > 0) {
+			this.pony_points[index-1].next_neighbour = new_point;
+			new_point.prev_neighbour = this.pony_points[index-1];
+		}
 		return new_point;
 	}
 	
@@ -348,7 +389,7 @@ function SvgPathAnimation(path) {
 		switch (segment.pathSegTypeAsLetter.toUpperCase()) {
 			case 'M':
 			case 'L':
-				this.PushPoint(segment);
+				this.PushPoint(segment,j);
 				break;
 			case 'Z':
 				if (j > 0 && this.pony_points[0].Join(this.pony_points[j-1])) {
@@ -358,27 +399,27 @@ function SvgPathAnimation(path) {
 				break;
 			case 'C':
 				this.ControlPointOut(segment,1);
-				this.PushPoint(segment);
+				this.PushPoint(segment,j);
 				this.ControlPointIn(segment,2);
 				break;
 			case 'S':
 				this.ControlPointMirrorOut();
-				this.PushPoint(segment);
+				this.PushPoint(segment,j);
 				this.ControlPointIn(segment,2);
 				break;
 			case 'Q':
 				this.ControlPointOut(segment,1); // simple?
-				this.PushPoint(segment);
+				this.PushPoint(segment,j);
 				this.ControlPointInSimple(segment.x1,segment.x1);
 				break;
 			case 'T':
 				var p = this.ControlPointMirrorOut();
-				this.PushPoint(segment);
+				this.PushPoint(segment,j);
 				this.ControlPointInSimple(p.y,p.x);
 				break;
 			case 'A':
 				// not fully supported
-				this.PushPoint(segment);
+				this.PushPoint(segment,j);
 				break;
 			case 'H': case 'V':
 				// not supported
@@ -393,6 +434,24 @@ function SvgPathAnimation(path) {
 	
 	// Done!
 	path.pony_points = this.pony_points;
+	path.pony_clones = [];
+	
+	// Workaround for Chromium not updating <use>
+	path.pony_workaround = path.ownerSVGElement.createSVGTransform();
+	path.transform.baseVal.appendItem(path.pony_workaround);
+	
+	path.PonyFlow = function(speed_correction) {
+		for (var i in this.pony_points) {
+			this.pony_points[i].Move(speed_correction);
+		}
+		this.pony_workaround.setTranslate(0,0);
+		for (var i in this.pony_clones) {
+			this.pony_clones[i].setAttribute("d",this.getAttribute("d"));
+		}
+	}.bind(path);
+	path.PonyClone = function(clone) {
+		this.pony_clones.push(clone);
+	}.bind(path);
 }
 
 // Luna constructor
@@ -409,6 +468,7 @@ function Luna(element, settings) {
 	
 	// Creates a star
 	this.SpawnStar = function () {
+		// TODO svg stars
 		var star_wrapper = document.createElement('div');
 		star_wrapper.className = "star";
 		star_wrapper.style.position = "absolute";
@@ -583,16 +643,29 @@ function Luna(element, settings) {
 			}
 		}
 		
-		
+		// Direct flows
+		this.svg.flows = [];
 		var flow_snapshot = this.SvgXpath('//svg:path[@pony:anim="flow"]',
 				XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE );
-		
-		this.svg.flows = [];
 		for (var i = 0; i < flow_snapshot.snapshotLength; i++) {
 			var flow = flow_snapshot.snapshotItem(i);
 			new SvgPathAnimation(flow);
 			this.svg.flows.push(flow);
 		}
+		// Clone flows
+		var flow_clones = [];
+		flow_snapshot = this.SvgXpath('//svg:path[@pony:anim="flow-clone"]',
+				XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE );
+		for (var i = 0; i < flow_snapshot.snapshotLength; i++) {
+			var flow = flow_snapshot.snapshotItem(i);
+			if (flow.hasAttribute("pony:anim-flow-clone")) {
+				for(var j in this.svg.flows) {
+					if ('#'+this.svg.flows[j].id == flow.getAttribute("pony:anim-flow-clone"))
+						this.svg.flows[j].PonyClone(flow);
+				}
+			}
+		}
+		
 	}
 	
 	// Performs animations on the SVG
@@ -651,10 +724,7 @@ function Luna(element, settings) {
 		}
 		
 		for (var i in this.svg.flows) {
-			var flow = this.svg.flows[i];
-			for (var j in flow.pony_points) {
-				flow.pony_points[j].Move(this.speed_correction);
-			}
+			this.svg.flows[i].PonyFlow(this.speed_correction);
 		}
 	}
 	

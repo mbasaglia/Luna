@@ -37,3 +37,9 @@ pony:anim = flow
 	                         of which determines the position in the movement 
 	                         segment.
 	 * pony:anim-flow-radius maximum distance a poin can travel (in pixels)
+	 
+pony:anim = flow-clone
+	<path>
+	Copy flow animation from another path (ie: sync outline and fill)
+	Required attributes:
+	 * pony:anim-flow-clone  #id of the referenced item
