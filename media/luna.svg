@@ -227,7 +227,7 @@
     <path d="m549.42 396.76c7.5575 2.4853 19.27 1.0838 29.749-2.6011 5.2156-1.834 10.239-4.2718 14.323-7.161 3.3397-2.3626 6.3292-5.2221 8.1492-8.5836 0.33099-0.73959 0.61031-1.5027 0.82701-2.2873a4.0766 4.0766 90 0 0 -7.8591 -2.1706c-0.0992 0.35915-0.23443 0.7351-0.41002 1.1276-0.59318 2.0699-2.1824 4.4747-4.7559 6.9695-3.0726 2.9786-7.2537 5.8042-11.941 8.1847-9.3183 4.7323-20.388 7.5834-28.082 6.5219z"/>
     <path id="path4365" d="m722.04 444.65c2.3214-31.429-5.373-72.202-32.482-101.28-16.45-17.645-44.597-38.722-82.806-23.016-22.954 9.4358-22.889 64.502-3.7941 89.326 35.355 45.962 112.4 40.436 119.08 34.97z" style="fill:#bcccdb"/>
     <g id="pony_eye_out" clip-path="url(#clipPath10655)">
-     <g id="pony_eye_in" pony:anim-eye-top="-15" pony:anim="eye" clip-path="none" pony:anim-eye-speed="3" pony:anim-eye-left="-20" pony:anim-eye-right="0" pony:anim-eye-bottom="20">
+     <g id="pony_eye_in" pony:anim-eye-top="-15" pony:anim="eye" clip-path="none" pony:anim-eye-speed="3" pony:anim-eye-left="-20" pony:anim-eye-right="0" pony:anim-eye-bottom="10">
       <ellipse id="ellipse4368" style="fill:url(#linearGradient6338)" clip-path="none" rx="32.695" ry="49.786" transform="matrix(1 0 .14698 .98914 -497.6 147.47)" cy="251.63" cx="1154.2"/>
       <g transform="translate(-498.14 143.54)" clip-path="url(#clipPath4397)">
        <path d="m1150.6 259.14 33.335-7.3236 0.7576 5.3033-31.062 28.284z" style="fill:#42c2b2"/>

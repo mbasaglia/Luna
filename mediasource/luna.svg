@@ -21,6 +21,8 @@
    inkscape:export-filename="../media/luna.png"
    inkscape:export-xdpi="96"
    inkscape:export-ydpi="96">
+  <title
+     id="title8254">Princess Luna</title>
   <defs
      id="defs4">
     <inkscape:path-effect
@@ -396,10 +398,10 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.4142136"
-     inkscape:cx="430.51135"
-     inkscape:cy="485.28006"
+     inkscape:cx="722.54645"
+     inkscape:cy="815.49893"
      inkscape:document-units="px"
-     inkscape:current-layer="layer18"
+     inkscape:current-layer="layer6"
      showgrid="false"
      inkscape:window-width="1753"
      inkscape:window-height="1180"
@@ -426,7 +428,14 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title>Princess Luna</dc:title>
+        <dc:creator>
+          <cc:Agent>
+            <dc:title>Mattia Basaglia</dc:title>
+          </cc:Agent>
+        </dc:creator>
+        <cc:license
+           rdf:resource="http://www.gnu.org/licenses/agpl-3.0.html" />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -1885,12 +1894,12 @@
              clip-path="none"
              inkscape:label="#g8264"
              id="pony_eye_in"
+             pony:anim="eye"
              pony:anim-eye-top="-15"
-             pony:anim-eye-bottom="20"
+             pony:anim-eye-speed="3"
              pony:anim-eye-left="-20"
              pony:anim-eye-right="0"
-             pony:anim-eye-speed="3"
-             pony:anim="eye">
+             pony:anim-eye-bottom="10">
             <ellipse
                transform="matrix(1,0,0.1469781,0.98913975,-497.60462,147.46596)"
                id="ellipse4368"

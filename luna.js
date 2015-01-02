@@ -692,8 +692,8 @@ function Luna(element, settings) {
 		
 		for (var i in this.svg.eyes) {
 			var eye = this.svg.eyes[i];
-			// TODO normalize this a bit and use pony_anim.speed when following the mouse
-			if (!isNaN(this.mouse.x)) {		
+			var target = { x: 0, y: 0 };
+			if (!isNaN(this.mouse.x)) {
 				var client_eyebox = eye.getBoundingClientRect();
 				client_eyebox.cy = client_eyebox.top + client_eyebox.height/2;
 				client_eyebox.cx = client_eyebox.left + client_eyebox.width/2;
@@ -710,17 +710,15 @@ function Luna(element, settings) {
 				else
 					dy = dy/(this.area.bottom-client_eyebox.cy);
 				
-				eye.gaze.setTranslate(dx * eye.pony_anim.width  + eye.pony_anim.cx, 
-											dy * eye.pony_anim.height + eye.pony_anim.cy);
-			} else {
-				var dx = eye.gaze.matrix.e;
-				var dy = eye.gaze.matrix.f;
-				var len = Math.max(0,Math.sqrt(dx*dx+dy*dy)-eye.pony_anim.speed*this.speed_correction);
-				var angle = Math.atan2(dy,dx);
-				eye.gaze.setTranslate(len*Math.cos(angle), 
-											len*Math.sin(angle));
-				
+				target.x = dx * eye.pony_anim.width  + eye.pony_anim.cx;
+				target.y = dy * eye.pony_anim.height + eye.pony_anim.cy;
 			}
+			var dx = target.x - eye.gaze.matrix.e;
+			var dy = target.y - eye.gaze.matrix.f;
+			var len = Math.min(Math.sqrt(dx*dx+dy*dy),eye.pony_anim.speed*this.speed_correction);
+			var angle = Math.atan2(dy,dx);
+			eye.gaze.setTranslate(eye.gaze.matrix.e + len*Math.cos(angle), 
+								  eye.gaze.matrix.f + len*Math.sin(angle));
 		}
 		
 		for (var i in this.svg.flows) {
