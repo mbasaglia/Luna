@@ -456,8 +456,8 @@ function SvgPathAnimation(path) {
 
 // Luna constructor
 function Luna(element, settings) {
-
-// Animation
+	
+// Stars
 	
 	// Evaluates the alpha of a star component
 	this.StarAlpha = function (settings, distance) {
@@ -465,12 +465,8 @@ function Luna(element, settings) {
 		return settings.min_alpha + (settings.max_alpha-settings.min_alpha) * alpha;
 	};
 	
-	
-	// Creates a star
-	this.SpawnStar = function () {
-		// TODO svg stars
-		var star_wrapper = document.createElement('div');
-		star_wrapper.className = "star";
+	// Sets star style
+	this.SetStarStyle = function (star_wrapper) {
 		star_wrapper.style.position = "absolute";
 		star_wrapper.style.zIndex = this.settings.z_index+0;
 		star_wrapper.style.left = Math.round(Math.random()*100)+'%';
@@ -479,52 +475,109 @@ function Luna(element, settings) {
 		star_wrapper.star_target = this.settings.star.max_fade;
 		star_wrapper.star_speed = this.settings.star.fade_speed;
 		
-		
-		var star_offset = document.createElement('div');
+		var star_offset = star_wrapper.firstElementChild;
 		star_offset.style.position = "relative";
 		star_offset.style.left = -this.settings.star.size/2 + "px";
 		star_offset.style.top = -this.settings.star.size/2 + "px";
-		star_wrapper.insertBefore(star_offset,null);
+		
+		
+		star_wrapper.star_core.style.opacity = 0.4;
+		star_wrapper.star_glow.style.opacity = 0;
+		star_wrapper.star_streak.style.opacity = 0;
+	}
+	
+	// Creates a star
+	this.SpawnPngStar = function () {
+		var star_wrapper = document.createElement('div');
+		
+		var star_offset = document.createElement('div');
+		star_wrapper.appendChild(star_offset);
 		
 		var star_core = document.createElement('img');
-		star_core.className = "star_core";
 		star_core.src = this.settings.media+"star_0.png";
 		star_core.style.height = 'auto';
 		star_core.style.width = this.settings.star.size+'px';
-		star_core.style.opacity = 0.4;
 		star_core.style.position = 'absolute';
 		star_offset.insertBefore(star_core,null);
 		star_wrapper.star_core = star_core;
 		
 		var star_glow = document.createElement('img');
-		star_glow.className = "star_glow";
 		star_glow.src = this.settings.media+"star_2.png";
 		star_glow.style.height = 'auto';
 		star_glow.style.width = this.settings.star.size+'px';
-		star_glow.style.opacity = 0;
 		star_glow.style.position = 'absolute';
 		star_offset.insertBefore(star_glow,star_core);
 		star_wrapper.star_glow = star_glow;
 		
 		var star_streak = document.createElement('img');
-		star_streak.className = "star_core";
 		star_streak.src = this.settings.media+"star_1.png";
 		star_streak.style.height = 'auto';
 		star_streak.style.width = this.settings.star.size+'px';
-		star_streak.style.opacity = 0;
 		star_streak.style.position = 'absolute';
 		star_offset.insertBefore(star_streak,star_glow);
 		star_wrapper.star_streak = star_streak;
 		
-		this.parent.insertBefore(star_wrapper,null);
+		this.parent.appendChild(star_wrapper);
+		this.SetStarStyle(star_wrapper);
 		this.stars.push(star_wrapper);
 	}
 	
+	this.ReceiveSvgStar = function(star_request) {
+		if (star_request.readyState == 4 && star_request.status == 200) {
+			var star_svg = star_request.responseXML.documentElement;
+			star_svg.width.baseVal.value = this.settings.star.size;
+			star_svg.height.baseVal.value = this.settings.star.size;
+			
+			for (var i = 0; i < this.settings.star.number; i++) {
+				var star_wrapper = document.createElement('div');
+				var star_document = document.importNode(star_svg,true)
+				star_wrapper.appendChild(star_document);
+				star_wrapper.star_core = this.SvgXpath(
+					'//svg:*[@id="star_core"]',
+					XPathResult.ANY_UNORDERED_NODE_TYPE,
+					star_document 
+				).singleNodeValue;
+				star_wrapper.star_glow = this.SvgXpath(
+					'//svg:*[@id="star_glow"]',
+					XPathResult.ANY_UNORDERED_NODE_TYPE,
+					star_document 
+				).singleNodeValue;
+				star_wrapper.star_streak = this.SvgXpath(
+					'//svg:*[@id="star_streak"]',
+					XPathResult.ANY_UNORDERED_NODE_TYPE,
+					star_document 
+				).singleNodeValue;
+				
+				this.parent.appendChild(star_wrapper);
+				this.SetStarStyle(star_wrapper);
+				this.stars.push(star_wrapper);
+			}
+		}
+	}
+	
+	this.SpawnStars = function () {
+		this.stars = [];
+		
+		if (this.settings.image_type == 'png') {
+			for (var i = 0; i < this.settings.star.number; i++)
+				this.SpawnPngStar();
+		} else if (this.settings.image_type == 'svg') {
+			var star_request = new XMLHttpRequest();
+			star_request.onreadystatechange = this.ReceiveSvgStar.bind(this,star_request);
+			star_request.open("GET",this.settings.media+"star.svg",true);
+			star_request.send();
+		}
+	}
+
+// Animation
+	
 	// Simplifies the interface to evaluate an XPath expression
-	this.SvgXpath = function(expression,result_type,old_object) {
+	this.SvgXpath = function(expression,result_type,element,old_object) {
 		if (!result_type) 
 			result_type = XPathResult.ANY_TYPE;
-		return document.evaluate( expression, this.luna.svg, SvgNsResolver, 
+		if (!element)
+			element = this.luna.svg;
+		return document.evaluate( expression, element, SvgNsResolver, 
 					result_type, old_object );
 	}
 	
@@ -909,6 +962,8 @@ function Luna(element, settings) {
 		this.moon.targetpos = { x: this.moon.restingpos.x, y: this.moon.restingpos.y };
 	}
 	
+// Luna
+	
 	// Sets style features common to SVG and PNG Luna image
 	this.SetLunaCommonStyle = function () {
 		this.luna.style.zIndex = this.settings.z_index+10;
@@ -920,7 +975,7 @@ function Luna(element, settings) {
 		if (luna_request.readyState == 4 && luna_request.status == 200) {
 			this.luna = document.createElement('div');
 			
-			this.luna.svg = luna_request.responseXML.documentElement;
+			this.luna.svg = document.importNode(luna_request.responseXML.documentElement, true);
 			this.luna.svg.style.width = '100%';
 			this.luna.svg.style.height = '100%';
 			
@@ -1027,9 +1082,7 @@ function Luna(element, settings) {
 	this.loading++;
 	this.moon.onload = this.Ready.bind(this);
 	// stars
-	this.stars = [];
-	for (var i = 0; i < this.settings.star.number; i++)
-		this.SpawnStar();
+	this.SpawnStars();
 	// menu
 	// NOTE <menu> is only implemented on Firefox
 	// NOTE Luna may or not be best princess but Firefox is surely best browser

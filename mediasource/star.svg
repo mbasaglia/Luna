@@ -10,9 +10,9 @@
    xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="16mm"
-   height="16mm"
-   viewBox="0 0 16 16"
+   width="128"
+   height="128"
+   viewBox="0 0 33.866666 33.866666"
    id="svg4750"
    version="1.1"
    inkscape:version="0.91+devel r"
@@ -32,7 +32,7 @@
        fy="218.48125"
        r="14.142136"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(0.24115438,0,0,0.24115412,-118.55279,49.589009)" />
+       gradientTransform="matrix(0.51044339,0,0,0.51044284,-343.90049,-18.181008)" />
     <linearGradient
        inkscape:collect="always"
        id="linearGradient4507-6-1">
@@ -61,11 +61,11 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="5.6"
-     inkscape:cx="8.7374097"
-     inkscape:cy="-2.9248257"
+     inkscape:zoom="1.979899"
+     inkscape:cx="-49.19041"
+     inkscape:cy="53.187055"
      inkscape:document-units="mm"
-     inkscape:current-layer="layer1"
+     inkscape:current-layer="layer2"
      showgrid="false"
      fit-margin-top="0"
      fit-margin-left="0"
@@ -78,7 +78,10 @@
      inkscape:window-height="1180"
      inkscape:window-x="50"
      inkscape:window-y="-3"
-     inkscape:window-maximized="1" />
+     inkscape:window-maximized="1"
+     inkscape:snap-page="true"
+     inkscape:object-nodes="true"
+     units="px" />
   <metadata
      id="metadata4755">
     <rdf:RDF>
@@ -95,45 +98,48 @@
      inkscape:groupmode="layer"
      id="layer2"
      inkscape:label="bg"
-     transform="translate(-83.251159,-94.278589)"
-     sodipodi:insensitive="true">
+     transform="translate(-83.251159,-76.411924)"
+     style="display:inline">
     <rect
        style="opacity:1;fill:#3a1d74;fill-opacity:1;stroke:none;stroke-width:4.52409458;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect5323"
-       width="316.74405"
-       height="244.92857"
-       x="-67.498466"
-       y="4.3940558" />
+       width="33.866661"
+       height="33.866665"
+       x="83.25116"
+       y="76.411926" />
   </g>
   <g
      inkscape:label="star"
      inkscape:groupmode="layer"
      id="layer1"
-     style="opacity:1"
-     transform="translate(-83.251159,-94.278589)">
+     style="display:inline;opacity:1"
+     transform="translate(-83.251159,-76.411924)">
     <path
        style="opacity:1;fill:#fcfbfe;fill-opacity:1;stroke:none"
-       d="m 95.476364,106.58143 -3.952084,-3.77591 -0.299514,7.22362 -0.318964,-7.25993 -4.034173,3.65276 3.6225,-4.11573 -6.193099,-0.26622 6.229398,-0.35232 -3.338235,-3.944643 3.801237,3.532963 0.363401,-6.745425 0.25509,6.781715 4.236198,-3.765232 -3.824529,4.228242 6.193101,0.26621 -6.229399,0.35233 z"
-       id="path4519-79-1"
+       d="m 109.12784,102.45294 -8.36524,-7.992344 -0.63398,15.289994 -0.675136,-15.36685 -8.538998,7.73167 7.667624,-8.711623 -13.108725,-0.563499 13.185558,-0.745744 -7.06593,-8.349493 8.045951,7.478104 0.769196,-14.277815 0.53994,14.354629 8.96662,-7.96974 -8.09525,8.949778 13.10873,0.563477 -13.18556,0.745765 z"
+       id="star_streak"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="ccccccccccccccccc"
        inkscape:export-filename="star_1.png"
        inkscape:export-xdpi="180"
-       inkscape:export-ydpi="180" />
+       inkscape:export-ydpi="180"
+       inkscape:label="#path4519-79-1" />
     <circle
        style="opacity:1;fill:url(#radialGradient4513-3-6);fill-opacity:1;stroke:none"
-       id="path4505-2-3"
-       cx="91.310928"
-       cy="102.27666"
-       r="3.4104342"
+       id="star_glow"
+       cx="100.311"
+       cy="93.341171"
+       r="7.2187519"
        inkscape:export-filename="star_2.png"
        inkscape:export-xdpi="180"
-       inkscape:export-ydpi="180" />
+       inkscape:export-ydpi="180"
+       inkscape:label="#path4505-2-3" />
     <path
        sodipodi:nodetypes="ccccccccccccccccc"
        inkscape:connector-curvature="0"
-       id="path5488"
-       d="m 93.985583,104.96079 -2.535096,-2.36789 -0.211378,4.1762 -0.235149,-4.20241 -2.475653,2.15998 2.178434,-2.49424 -3.384124,-0.186 3.410331,-0.26057 -1.829947,-2.228704 2.164224,1.931484 0.248391,-3.698 0.198146,3.7242 2.332829,-2.02397 -2.035613,2.35825 3.431373,0.22181 -3.457579,0.22476 z"
-       style="opacity:1;fill:#fcfbfe;fill-opacity:1;stroke:none" />
+       id="star_core"
+       d="m 105.97235,99.022584 -5.36595,-5.012033 -0.44742,8.839619 -0.497728,-8.895097 -5.240132,4.571957 4.611019,-5.279474 -7.163062,-0.3937 7.218533,-0.55154 -3.873387,-4.717423 4.58094,4.088308 0.525757,-7.827433 0.41941,7.882889 4.93782,-4.284069 -4.30871,4.991629 7.26307,0.469497 -7.31854,0.475742 z"
+       style="opacity:1;fill:#fcfbfe;fill-opacity:1;stroke:none"
+       inkscape:label="#path5488" />
   </g>
 </svg>
