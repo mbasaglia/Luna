@@ -975,7 +975,9 @@ function Luna(element, settings) {
 		if (luna_request.readyState == 4 && luna_request.status == 200) {
 			this.luna = document.createElement('div');
 			
-			this.luna.svg = document.importNode(luna_request.responseXML.documentElement, true);
+			this.luna.svg = luna_request.responseXML.documentElement;
+			// The following should be more correct but it causes oddities on Firefox
+			//this.luna.svg = document.importNode(luna_request.responseXML.documentElement, true);
 			this.luna.svg.style.width = '100%';
 			this.luna.svg.style.height = '100%';
 			
